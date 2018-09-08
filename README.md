@@ -1,0 +1,2 @@
+# JXEditCollectionView
+可以通过长按拖拽编辑每个cell的位置
