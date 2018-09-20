@@ -95,6 +95,10 @@
 
 - (void)gestureBegan:(UILongPressGestureRecognizer *)gesture
 {
+    if (self.dragingCell && self.dragingCell.hidden) {
+        self.dragingCell.hidden = NO;
+    }
+    
     CGPoint point = [gesture locationInView:self];
     //获得准备移动的cell
     self.dragingIndexPath = [self getDragingIndexPathWithPoint:point];
