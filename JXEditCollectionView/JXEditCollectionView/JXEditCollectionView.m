@@ -8,7 +8,7 @@
 
 #import "JXEditCollectionView.h"
 
-@interface JXEditCollectionView()
+@interface JXEditCollectionView()<UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) UILongPressGestureRecognizer *longGesture;
 
@@ -36,6 +36,7 @@
 {
     if (!_longGesture) {
         _longGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressGesture:)];
+        _longGesture.delegate = self;
         _longGesture.minimumPressDuration = self.minimumPressDuration;
     }
     return _longGesture;
@@ -98,10 +99,12 @@
     if (self.dragingCell && self.dragingCell.hidden) {
         self.dragingCell.hidden = NO;
     }
-    
-    CGPoint point = [gesture locationInView:self];
     //获得准备移动的cell
-    self.dragingIndexPath = [self getDragingIndexPathWithPoint:point];
+    CGPoint point = [gesture locationInView:self];
+    NSIndexPath *indexPath = [self getDragingIndexPathWithPoint:point];
+    
+    self.dragingIndexPath = indexPath;
+    
     self.dragingCell = [self cellForItemAtIndexPath:self.dragingIndexPath];
     
     //将准备移动的cell截图展示
@@ -119,10 +122,20 @@
 - (void)gestureChanged:(UILongPressGestureRecognizer *)gesture
 {
     CGPoint point = [gesture locationInView:self];
-    
-    self.targetIndexPath = [self getTargetIndexPathWithPoint:point];
-    
     self.tempCell.center = point;
+    
+    NSIndexPath *indexPath = [self getTargetIndexPathWithPoint:point];
+    
+    if (self.unmovableArr && self.unmovableArr.count > 0) {
+        for (int i = 0; i < self.unmovableArr.count; i++) {
+            NSInteger row = [self.unmovableArr[i] integerValue];
+            if (row == indexPath.row) {
+                return;
+            }
+        }
+    }
+    
+    self.targetIndexPath = indexPath;
     
     if (self.dragingIndexPath && self.targetIndexPath) {
         [self moveItemAtIndexPath:self.dragingIndexPath toIndexPath:self.targetIndexPath];
@@ -149,6 +162,23 @@
             completion();
         }
     }];
+}
+
+#pragma mark- UIGestureRecognizerDelegate
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    CGPoint point = [gestureRecognizer locationInView:self];
+    NSIndexPath *indexPath = [self getDragingIndexPathWithPoint:point];
+    
+    if (self.unmovableArr && self.unmovableArr.count > 0) {
+        for (int i = 0; i < self.unmovableArr.count; i++) {
+            NSInteger row = [self.unmovableArr[i] integerValue];
+            if (row == indexPath.row) {
+                return NO;
+            }
+        }
+    }
+    return YES;
 }
 
 

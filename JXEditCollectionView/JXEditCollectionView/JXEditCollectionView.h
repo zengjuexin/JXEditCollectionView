@@ -11,6 +11,11 @@
 @interface JXEditCollectionView : UICollectionView
 
 /**
+ * 不可移动的cell数组
+ */
+@property (nonatomic, copy) NSArray<NSNumber *> *unmovableArr;
+
+/**
  * 设置长按时间
  */
 @property (nonatomic) CFTimeInterval minimumPressDuration;
@@ -21,6 +26,10 @@
 @property (nonatomic, assign) BOOL isEdit;
 /**
  * 当cell位置发生变化时执行
+ * 使用示例
+ * NSString *dragingData = self.dataArr[dragingIndexPath.row];
+ * [self.dataArr removeObject:dragingData];
+ * [self.dataArr insertObject:dragingData atIndex:targetIndexPath.row];
  */
 @property (nonatomic, copy) void(^didExchangeCell)(NSIndexPath *dragingIndexPath, NSIndexPath *targetIndexPath);
 
